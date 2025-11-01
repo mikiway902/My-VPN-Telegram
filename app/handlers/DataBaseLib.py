@@ -11,11 +11,19 @@ import random
 env_path = Path(__file__).resolve().parent.parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
+print(env_path)
+
 POSTGRES_DB = os.getenv("POSTGRES_DB")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = int(os.getenv("DB_PORT", 5432))
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_USER = os.getenv("POSTGRES_USER")
+DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+
+print('\n', DB_HOST, '\n',
+        DB_PORT, '\n',
+        DB_USER, '\n',
+        DB_PASSWORD, '\n',
+        POSTGRES_DB, '\n')
 
 
 async def creating_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD):
@@ -25,7 +33,7 @@ async def creating_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD):
     try:
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS users(
-                sender_id TEXT NOT NULL UNIQUE,
+                sender_id BIGINT NOT NULL UNIQUE,
                 email TEXT UNIQUE DEFAULT NULL,
                 sub_type TEXT DEFAULT NULL,
                 sub_link TEXT UNIQUE DEFAULT NULL,
@@ -109,6 +117,17 @@ async def show_user_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, send
     finally:
         await conn.close()
 
+async def show_all_user_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD):
+    conn = await asyncpg.connect(
+        user=DB_USER, password=DB_PASSWORD, database=POSTGRES_DB, host=DB_HOST, port=DB_PORT
+    )
+    try:
+        rows = await conn.fetch('SELECT * FROM users')
+        return [dict(row) for row in rows]  # возвращаем список словарей
+    finally:
+        await conn.close()
+
+
 
 # Для тестирования
 async def main():
@@ -118,8 +137,11 @@ async def main():
     await creating_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
     await add_user_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, sender_id, email)
     user = await show_user_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, sender_id)
-    print(user)
-
+    print(user, '\n')
+    user_all = await show_all_user_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
+    for user in user_all:
+        print(user)
+    
 
 if __name__ == "__main__":
     asyncio.run(main())

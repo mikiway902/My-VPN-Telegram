@@ -8,15 +8,15 @@ from dotenv import load_dotenv
 
 from handlers.DataBaseLib import add_user_db, show_user_db
 
-env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+# Загрузка .env
+env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 POSTGRES_DB = os.getenv("POSTGRES_DB")
 DB_HOST = os.getenv("DB_HOST")
-DB_PORT = int(os.getenv("DB_PORT", 5432))  # безопасно: если нет переменной — 5432
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-
+DB_PORT = int(os.getenv("DB_PORT", 5432))
+DB_USER = os.getenv("POSTGRES_USER")
+DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 router = Router()
 
 class RegistrationForm(StatesGroup):

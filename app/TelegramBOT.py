@@ -15,7 +15,7 @@ from handlers import TgBotActions  # импортируем router из моду
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 TOKEN = os.getenv("TELEGRAM_TOKEN")
-
+print(env_path)
 # Создаем Dispatcher и подключаем router
 dp = Dispatcher()
 dp.include_router(TgBotActions.router)
