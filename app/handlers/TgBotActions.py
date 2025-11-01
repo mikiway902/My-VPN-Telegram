@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from handlers.DataBaseLib import add_user_db, show_user_db
 
-env_path = Path(__file__).resolve().parent.parent / ".env"
+env_path = Path(__file__).resolve().parent.parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 POSTGRES_DB = os.getenv("POSTGRES_DB")

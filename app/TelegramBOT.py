@@ -12,7 +12,7 @@ from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 from handlers import TgBotActions  # импортируем router из модуля
 
 # Загрузка .env
-env_path = Path(__file__).resolve().parent / ".env"
+env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
