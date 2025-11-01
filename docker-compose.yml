@@ -48,6 +48,11 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
     networks:
       - postgres
 
@@ -63,8 +68,44 @@ services:
     ports:
       - "5050:80"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 4G
     networks:
       - postgres
+
+  3xui:
+    image: ghcr.io/mhsanaei/3x-ui:latest
+    container_name: 3xui_app
+    hostname: 3xui_local
+    volumes:
+      - ./db:/etc/x-ui/
+      - ./cert:/root/cert/
+      - ./init.sh:/app/init.sh
+    environment:
+      XRAY_VMESS_AEAD_FORCED: "false"
+      XUI_ENABLE_FAIL2BAN: "true"
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      TZ: Europe/Moscow                  # часовой пояс
+
+    # === Режим сети и проброс портов ===
+    network_mode: bridge
+    ports:
+      - "2053:2053"   # панель управления (http://localhost:2053)
+      - "80:80"       # HTTP
+      - "443:443"     # HTTPS
+
+    tty: true
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+
 
 volumes:
   pgdata:

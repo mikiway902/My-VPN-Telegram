@@ -3,3 +3,4 @@ asyncpg==0.29.0
 python-dotenv==1.1.1
 python-dateutil==2.9.0
 asyncio==3.2.4
+py3xui==0.5.2
