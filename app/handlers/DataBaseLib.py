@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 import random
+import uuid
 
 # Загрузка .env
 env_path = Path(__file__).resolve().parent.parent.parent / ".env"
@@ -25,6 +26,9 @@ print('\n', DB_HOST, '\n',
         DB_PASSWORD, '\n',
         POSTGRES_DB, '\n')
 
+async def uuid_gen(sender_id, email):
+    user_uuid = await str(sender_id) + str(uuid.uuid4()) + 'email:' +str(email)
+    return user_uuid
 
 async def creating_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD):
     conn = await asyncpg.connect(
@@ -34,6 +38,7 @@ async def creating_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD):
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS users(
                 sender_id BIGINT NOT NULL UNIQUE,
+                user_uuid TEXT UNIQUE NOT NULL UNIQUE,
                 email TEXT UNIQUE DEFAULT NULL,
                 sub_type TEXT DEFAULT NULL,
                 sub_link TEXT UNIQUE DEFAULT NULL,
@@ -51,11 +56,12 @@ async def add_user_db(POSTGRES_DB, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, sende
         user=DB_USER, password=DB_PASSWORD, database=POSTGRES_DB, host=DB_HOST, port=DB_PORT
     )
     try:
+        user_uuid = await uuid_gen(sender_id, email)
         await conn.execute('''
-            INSERT INTO users (sender_id, email, reg_date)
-            VALUES ($1, $2, $3)
+            INSERT INTO users (sender_id, email, reg_date, user_uuid)
+            VALUES ($1, $2, $3, $4)
             ON CONFLICT (sender_id) DO NOTHING
-        ''', sender_id, email, datetime.now())
+        ''', sender_id, email, datetime.now(), user_uuid)
     finally:
         await conn.close()
 
